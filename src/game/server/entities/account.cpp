@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fstream>
 #include <engine/config.h>
+#include <engine/shared/config.h>
 #include "account.h"
 
 
@@ -131,8 +132,8 @@ void CAccount::Register(char *Username, char *Password)
 		Password, 
 
 		m_pPlayer->m_AccData.m_Exp,
-		m_pPlayer->m_AccData.m_Level = 1,
-		m_pPlayer->m_AccData.m_Money,
+		m_pPlayer->m_AccData.m_Level = g_Config.m_SvRegStartLevel,
+		m_pPlayer->m_AccData.m_Money = g_Config.m_SvRegStartLevel,
 		
 		m_pPlayer->m_AccData.m_Dmg,
 		m_pPlayer->m_AccData.m_Health,
