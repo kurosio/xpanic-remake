@@ -400,7 +400,7 @@ void CCmd::ChatCmd(CNetMsg_Cl_Say *Msg)
 	{
 		LastChat();
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "~~~~~~~~ Welcome to info! ~~~~~~~~");
-		char aBuf[32];
+		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "Owner: %s / Skype: %s", g_Config.m_SvOwnerName, g_Config.m_SvOwnerSkype);
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Panic mod by Kurosio, helper: nope");
