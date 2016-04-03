@@ -21,7 +21,7 @@ void CCmd::ChatCmd(CNetMsg_Cl_Say *Msg)
 		LastChat();		
 		if(GameServer()->m_World.m_Paused) return GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Please wait end round!");
 		
-		char Username[256], Password[256], aBuf[64];
+		char Username[256], Password[256];
 		if(sscanf(Msg->m_pMessage, "/login %s %s", Username, Password) != 2) 
 			return GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Use: /login <username> <password>");
 		
@@ -37,7 +37,7 @@ void CCmd::ChatCmd(CNetMsg_Cl_Say *Msg)
 		LastChat();
 		if(GameServer()->m_World.m_Paused)  return GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Please wait end round!");
 		
-		char Username[256], Password[256], aBuf[64];
+		char Username[256], Password[256];
 		if(sscanf(Msg->m_pMessage, "/register %s %s", Username, Password) != 2) 
 			return GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Use /register <username> <password>'");
 		
