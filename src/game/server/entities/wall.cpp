@@ -1,3 +1,4 @@
+#include <base/math.h>
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include "wall.h"
