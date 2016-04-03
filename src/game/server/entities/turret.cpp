@@ -1,12 +1,13 @@
-#include "turret.h"
-#include "projectile.h"
-#include "wall.h"
-#include "hearth.h"
-
+#include <base/math.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #define M_PI 3.14159265358979323846
+
+#include "turret.h"
+#include "projectile.h"
+#include "wall.h"
+#include "hearth.h"
 
 CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Owner, int Type, vec2 PosL1, vec2 PosL2)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_TURRET)
