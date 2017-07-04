@@ -12,6 +12,9 @@ CAccount::CAccount(CPlayer *pPlayer, CGameContext *pGameServer)
 {
 	m_pPlayer = pPlayer;
 	m_pGameServer = pGameServer;
+	
+	if(mkdir("accounts", mode_t S_IRWXU || S_IRWXG | S_IROTH | S_IXOTH))
+		dbg_msg("account", "Account folder created!");
 }
 
 void CAccount::Login(char *Username, char *Password)
