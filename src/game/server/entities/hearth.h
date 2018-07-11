@@ -11,13 +11,11 @@ public:
 	virtual void Reset();
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);
-
 	int m_Owner;
+	bool m_Active;
 	
 private:
 	vec2 Lefpos;
-	bool StopTickLef;
-	bool Fistheart;
 	int m_Lifetime;
 };
 
