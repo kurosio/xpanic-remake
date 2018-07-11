@@ -158,7 +158,6 @@ public:
 	bool m_HittingDoor;
 	int m_BurnTick;
 	int m_BurnedFrom;
-	bool m_TypeHealthCh;
 	vec2 m_PushDirection;
 	vec2 m_RiflePos;
 	vec2 m_TurGrenade;
