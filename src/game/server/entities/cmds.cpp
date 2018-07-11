@@ -511,7 +511,6 @@ void CCmd::ChatCmd(CNetMsg_Cl_Say *Msg)
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Done!");
 		m_pPlayer->m_Score -= 20;
 		m_pPlayer->m_ActivesLife = false;
-		m_pPlayer->m_LifeActives = false;
 		new CLifeHearth(&GameServer()->m_World, vec2(0, 0), m_pPlayer->GetCID());
 		return;
 	}
