@@ -14,6 +14,7 @@
 #include "wall.h"
 #include "mine.h"
 #include "turret.h"
+#include "hearth.h"
 
 MACRO_ALLOC_POOL_ID_IMPL(CCharacter, MAX_CLIENTS)
 
@@ -52,7 +53,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->m_World.InsertEntity(this);
 	m_Alive = true;
 
-	m_LastRefillJumps = m_HittingDoor = m_iVisible = m_TypeHealthCh = false;
+	m_LastRefillJumps = m_HittingDoor = m_iVisible = false;
 	m_TurretActive[0] = m_TurretActive[1] = m_TurretActive[2] = m_TurretActive[3] = m_TurretActive[4] = false;
 	
 	m_SuperJump = false;
@@ -157,9 +158,6 @@ void CCharacter::HandleWeaponSwitch()
 	{
 		while(Next) // Next Weapon selection
 		{
-			if (!m_pPlayer->m_LifeActives && m_pPlayer->GetTeam() == TEAM_RED && g_Config.m_SvNewHearth)
-				m_TypeHealthCh = true;
-
 			WantedWeapon = (WantedWeapon+1)%NUM_WEAPONS;
 			if(m_aWeapons[WantedWeapon].m_Got)
 				Next--;
@@ -170,9 +168,6 @@ void CCharacter::HandleWeaponSwitch()
 	{
 		while(Prev) // Prev Weapon selection
 		{
-			if (!m_pPlayer->m_LifeActives && m_pPlayer->GetTeam() == TEAM_RED && g_Config.m_SvNewHearth)
-				m_TypeHealthCh = false;
-
 			WantedWeapon = (WantedWeapon-1)<0?NUM_WEAPONS-1:WantedWeapon-1;
 			if(m_aWeapons[WantedWeapon].m_Got)
 				Prev--;
@@ -241,29 +236,31 @@ void CCharacter::FireWeapon()
 			int Hits = 0;
 			if (m_pPlayer->GetTeam() == TEAM_RED)
 			{
-				int rands = rand() % 150;
-				if (rands == 15) 
+				if (rand() % 150 == 15) 
 					new CMine(GameWorld(), m_Pos, m_pPlayer->GetCID());
 
-				if (!m_pPlayer->m_LifeActives && !m_HeartTick && (m_TypeHealthCh && g_Config.m_SvNewHearth || !g_Config.m_SvNewHearth))
-					m_pPlayer->m_LifeActives = true;
-				
-				CTurret *pClosest = (CTurret *)GameWorld()->FindFirst(CGameWorld::ENTTYPE_TURRET);
-				while (pClosest) 
+				for(CTurret* pTurret = (CTurret*) GameWorld()->FindFirst(CGameWorld::ENTTYPE_TURRET); pTurret; pTurret = (CTurret*) pTurret->TypeNext())
 				{
-					if (distance(pClosest->m_Pos, m_Pos) <= 25) 
+					if (distance(pTurret->m_Pos, m_Pos) <= 25) 
 					{
-						if (!GameServer()->Collision()->IntersectLine(m_Pos, pClosest->m_Pos, 0, 0, false)) 
+						if (!GameServer()->Collision()->IntersectLine(m_Pos, pTurret->m_Pos, 0, 0, false)) 
 						{
-							if(GameServer()->GetPlayerChar(pClosest->m_Owner))
-								GameServer()->CreateSoundGlobal(35, pClosest->m_Owner);
+							if(GameServer()->GetPlayerChar(pTurret->m_Owner))
+								GameServer()->CreateSoundGlobal(35, pTurret->m_Owner);
 							
-							GameServer()->CreateHammerHit(pClosest->m_Pos);
-							pClosest->Reset();
+							GameServer()->CreateHammerHit(pTurret->m_Pos);
+							pTurret->Reset();
 							ExperienceAdd(1, m_pPlayer->GetCID());
 						}
 					}
-					pClosest = (CTurret *)pClosest->TypeNext();
+				}
+
+				for(CLifeHearth* pHearth = (CLifeHearth*) GameWorld()->FindFirst(CGameWorld::ENTTYPE_HEARTH); pHearth; pHearth = (CLifeHearth*) pHearth->TypeNext())
+				{
+					if(pHearth->m_Owner != m_pPlayer->GetCID()) continue;
+
+					pHearth->m_Pos = m_Pos;
+					pHearth->m_Active = true;
 				}
 				
 				int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius*(m_pPlayer->m_RangeShop?2.00f:0.76f), (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
@@ -1079,18 +1076,6 @@ void CCharacter::HandleTiles(int Index)
 	m_TileFFlagsT = GameServer()->Collision()->GetFTileFlags(MapIndexT);//
 	//dbg_msg("Tiles","%d, %d, %d, %d, %d", m_TileSIndex, m_TileSIndexL, m_TileSIndexR, m_TileSIndexB, m_TileSIndexT);
 	//Sensitivity
-	int S1 = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f));
-	int S2 = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f));
-	int S3 = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f));
-	int S4 = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f));
-	int Tile1 = GameServer()->Collision()->GetTileIndex(S1);
-	int Tile2 = GameServer()->Collision()->GetTileIndex(S2);
-	int Tile3 = GameServer()->Collision()->GetTileIndex(S3);
-	int Tile4 = GameServer()->Collision()->GetTileIndex(S4);
-	int FTile1 = GameServer()->Collision()->GetFTileIndex(S1);
-	int FTile2 = GameServer()->Collision()->GetFTileIndex(S2);
-	int FTile3 = GameServer()->Collision()->GetFTileIndex(S3);
-	int FTile4 = GameServer()->Collision()->GetFTileIndex(S4);
 	if(Index < 0)
 	{
 		m_iVisible = false;
