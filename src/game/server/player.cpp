@@ -65,7 +65,6 @@ void CPlayer::Reset()
 	m_EyeEmote = true;
 	m_DefEmote = EMOTE_NORMAL;
 	m_Afk = false;
-	m_LifeActives = false;
 	m_LastWhisperTo = -1;
 	m_TimeoutCode[0] = '\0';
 	m_TuneZone = 0;
@@ -578,7 +577,6 @@ void CPlayer::SetZomb(int From)
 			str_format(aBuf, sizeof(aBuf), "'%s' wants your brain! Run away.", Server()->ClientName(m_ClientID));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		}
-		m_LifeActives = false;
 		new CLifeHearth(&GameServer()->m_World, m_pCharacter->m_Pos, m_ClientID);
 		m_pCharacter->Die(m_ClientID, WEAPON_WORLD);
 	}
